@@ -5,19 +5,27 @@ services:
     restart: always
     build: .
     ports:
-      - 8080:8080 
+      - 8080:9999
     environment:
       MYSQL_HOST: mysqldb
-      MYSQL_USER: root
+      MYSQL_USER: dockeruser
       MYSQL_PASSWORD: DanviShanmuki@2
+      MYSQL_DB: registration
       MYSQL_PORT: 3306
-  mysqldb: 
-    container_name: mysqldb
+      SERVER_PORT: 9999
+  mysqldb:
     image: mysql
-    volumes:
-      -  /home/user/Desktop/db:/var/lib/mysql
-    ports: 
-     - 3307:3306   
+    restart: always
     environment:
-      MYSQL_DATABASE: registration
+      MYSQL_USER: dockeruser
+      MYSQL_PASSWORD: DanviShanmuki@2
       MYSQL_ROOT_PASSWORD: DanviShanmuki@2
+    ports:
+      - '3307:3306'
+    expose:
+      - '3306'
+    volumes:
+      - my-db:/var/lib/mysql
+# Names our volume
+volumes:
+  my-db:
