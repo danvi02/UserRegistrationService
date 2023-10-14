@@ -1,4 +1,4 @@
-# Controller API for Performance Testing
+# User Registration Service with Docker
 
 `In this GIT branch code, we will be making the communication between 2 docker containers using HOST
 IP address. There are 2 ways in which we can make docker containers to communicate with each other.`
@@ -41,7 +41,7 @@ IP address. There are 2 ways in which we can make docker containers to communica
 ### 3. Run Docker Image
 
 -	**docker compose up:** 
--	Run this command to pull mysql image and run it in docker container because this is required for our springboot application/image as it depends 	on this mysql image. Once it is UP and running then execute the below command to run your spring application image in docker container.
+-	Run this command to pull mysql image and run it in docker container because this is required for 	our springboot application/image as it depends 	on this mysql image. Once it is UP and running then 	execute the below command to run your spring application image in docker container.
 
 -	**docker run -p 9091:9999 -e SERVER.PORT=9999 danvi/user-registration-service:1.1 .**
 -	`docker run` : This is the Docker command used to run a container from a Docker image.
