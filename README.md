@@ -1,6 +1,20 @@
 # User Registration Service with Docker
 
-`In this GIT branch code, we will be making the communication between 2 docker containers using HOST
+## Regarding Dockerfile Description
+
+- **FROM openjdk:17-alpine**: This line specifies the base image for the Docker image. In this case, it's 	using the Alpine Linux-based OpenJDK 17 image.
+
+- **ARG JAR_FILE=target/UserRegistrationService-1.1-SNAPSHOT.jar**: This line declares an argument 	named 	JAR_FILE and sets its default value to target/UserRegistrationService-1.1-SNAPSHOT.jar. This 	argument 	will be used later in the Dockerfile. When we run the below command:
+	`docker build -t danvi/user-registration-service:1.1 --build-arg 	JAR_FILE=target/UserRegistrationService-1.1-SNAPSHOT.jar .` // it can be 1.0, 1.1, 1.2 etc... 
+-	In the 	above command, the --build-arg option allows you to specify the value for the JAR_FILE 	build 	argument. By changing the value of the JAR_FILE argument during the build process, you can 	build 	Docker images with different versions of the JAR file without modifying the Dockerfile itself.
+
+- **ADD ${JAR_FILE} userregistration.jar**: This line copies the JAR file specified by the JAR_FILE 	argument from the build context into the Docker image and renames it to userregistration.jar.
+
+- **ENTRYPOINT ["java","-jar","/userregistration.jar"]**: This line sets the default command to run when the
+	container starts. It runs the Java application inside the container using the java -jar command 	and 	specifies the userregistration.jar file as the application JAR.
+
+##`In this GIT branch code, we will be making the communication between 2 docker containers using HOST`
+
 IP address. There are 2 ways in which we can make docker containers to communicate with each other.`
 
 - **way 1:** Using Host machine IP(our system IP) if 2 or more docker containers want to communicate.
