@@ -1,65 +1,67 @@
-# Docker File and Steps for Building, Running and Pushing Docker Images
+# Controller API for Performance Testing
 
-FROM openjdk:17-alpine
-ARG JAR_FILE=target/UserRegistrationService-1.1-SNAPSHOT.jar
-ADD ${JAR_FILE} userregistration.jar
-ENTRYPOINT ["java","-jar","/userregistration.jar"]
+`In this GIT branch code, we will be making the communication between 2 docker containers using HOST
+IP address. There are 2 ways in which we can make docker containers to communicate with each other.`
 
-## Line 1: 
-It will pull the openjdk image from docker and create a java runtime environment for our spring boot application
+- **way 1:** Using Host machine IP(our system IP) if 2 or more docker containers want to communicate.
 
-## Line 2:
-This line defines an argument variable JAR_FILE with value of target/user-registration-service.jar. 
-This argument can be overridden during the build process, allowing you to specify a different JAR file 
-if needed like below.
-- **To build docker image**
-docker build -t danvi/user-registration-service:1.1 --build-arg JAR_FILE=target/UserRegistrationService-1.1-SNAPSHOT.jar . // it can be 1.0, 1.1 etc... 
-In the above commands, the --build-arg option allows you to specify the value for the JAR_FILE build argument.
-By changing the value of the JAR_FILE argument during the build process, you can build Docker images with 
-different versions of the JAR file without modifying the Dockerfile itself.
-## Line 3:
-For instance, renaming user-registration-service.jar to userregistration.jar can make it more intuitive, 
-especially in cases where the original file name is long or contains version information.
-## Line 4:
-This line specifies the default command to run when the container starts. It runs the Java application userregistration.jar without any additional parameters.
+- **way 2** Create a docker compose file and define the services to make them connected to same network then containers can communicate with each 	other using container/service names.
 
-- **To run docker image**
-	- if application.properties contains SERVER.PORT=7777, we need to run image as below because our springboot application will run on port 7777 in docker container.
-	  docker run -p 9091:7777 -e SERVER.PORT=9999 danvi/user-registration-service:1.1 .
-	  -p creates a firewall rule like only the requests coming from 9091 host machine should map to container running on port 7777.
-	- if application.properties does not contain SERVER.PORT, by default 8080 port will be used by tomcat but if 8080 is already in use by some other services like Jenkins(runs on 8080) in that case our container will not run on 8080 port in such cases,
-	- we can run our container on specific port(lets say 9999) by using below command
-	  docker run -p 9091:9999 -e SERVER.PORT=9999 danvi/user-registration-service:1.1 .
-	- The -e flag is used to set environment variables within the Docker container.
-	  -p creates a firewall rule like only the requests coming from 9091 host machine should map to container running on port 9999.
-	  
-- ** Pushing docker image **
-	- docker push danvi/user-registration-service:1.1
-	- will push it docker image to docker hub with repository name as danvi/user-registration-service is the
+## Docker Images
 
-# Docker Compose File
+- **1st docker image:** When we run springboot application image docker image, it becomes a 
+    container and it has its own HOST IP and localhost specific to this container itself(lets 
+	say this is user-registration-service container).
 
-In a Dockerized environment, there can be multiple services running, each potentially in its own container. When we talk about services, we mean any application or process that provides specific functionality. In your case, you have two services:
+- **2nd docker image:** When we run mysql image which was pulled from docker cloud officially, 
+	it becomes a container and it has its own HOST IP and localhost specific to this container 
+	itself(lets say this is mysql container).
 
-- ** Spring Boot Application:** This is your application that needs to connect to the database.
-- ** MySQL: ** This is the database service your application needs to communicate with.
-When both your Spring Boot application and MySQL are running as Docker containers, they can communicate with each other using Docker's internal networking without needing to specify the host machine's IP address. Docker provides an internal DNS service that allows containers to find each other by service name (as specified in docker-compose.yml) or by container name.
-So, if both your Spring Boot application and MySQL are running as containers in the same Docker network (as defined in your docker-compose.yml file), you can use the service name (mysqldb as per your configuration) as the hostname in your Spring Boot application's application.properties file:
 
-- ** spring.datasource.url=jdbc:mysql://mysqldb:3306/registration **
-- ** spring.datasource.username=dockeruser **
-- ** spring.datasource.password=DanviShanmuki@2 **
-- ** spring.jpa.hibernate.ddl-auto=update **
-- ** spring.jpa.show-sql=true **
+## Docker Commands
 
-** In this context **
+### 1. Build the application before building an image
 
-- ** Service running outside the Docker environment ** refers to a scenario where, for some reason, the MySQL ,
-database is not running in a Docker container but directly on the host machine, outside the Docker 
-environment.
+- **mvn clean install**
+-	This command builds the application and generates the jar file in target folder.
 
-- ** Connecting to MySQL running on the host machine itself ** refers to the situation where MySQL is not in 
-a Docker container but installed and running directly on the host operating system, outside the Docker 
-environment. In such a case, you would use the host machine's IP address in your Spring Boot application's 
-configuration to establish a connection because the Docker containers cannot directly access services 
-running outside the Docker environment without using the host machine's IP address.
+### 2. Build docker image
+
+- **docker build -t danvi/user-registration-service:1.1 --build-arg JAR_FILE=target/UserRegistrationService-1.1-SNAPSHOT.jar .**
+-   `docker build`: This is the Docker command used to build an image from a Dockerfile.
+-	`-t danvi/user-registration-service:1.1`: This specifies the name and optionally a tag to the 
+	name of the image. In this case, the image will be tagged as danvi/user-registration-service with 
+	version 1.1.
+-	`--build-arg JAR_FILE=target/UserRegistrationService-1.1-SNAPSHOT.jar`: This option allows 
+	passing a build-time variable to the Dockerfile. In this case, it sets the JAR_FILE build argument
+	to target/UserRegistrationService-1.1-SNAPSHOT.jar.
+-	`.`: This specifies the build context. It tells Docker to look for the Dockerfile and any files 
+	it references in the current directory (.).
+
+### 3. Run Docker Image
+
+-	**docker compose up:** 
+-	Run this command to pull mysql image and run it in docker container because this is required for our springboot application/image as it depends 	on this mysql image. Once it is UP and running then execute the below command to run your spring application image in docker container.
+
+-	**docker run -p 9091:9999 -e SERVER.PORT=9999 danvi/user-registration-service:1.1 .**
+-	`docker run` : This is the Docker command used to run a container from a Docker image.
+-	`-p 9091:9999` : This option maps port 9999 from the container to port 9091 on the host system.
+	It means that any traffic sent to port 9091 on the host will be forwarded to port 9999 inside 
+	the container.
+-	`-e SERVER.PORT=9999` : This option sets an environment variable SERVER.PORT with a value of 
+	9999 inside the container. This environment variable likely configures the port on which the 
+	application inside the container will listen for incoming connections. This `-e` is really helpful
+	when you want to run the application in docker container on separate port.
+-	`danvi/user-registration-service:1.1`: This specifies the name and tag of the Docker image from
+	which to run the container. In this case, it is danvi/user-registration-service with version 
+	1.1.
+-	`.`: The dot at the end of the command is not necessary and might cause an error. It specifies
+	the build context, but it is not applicable when running a container.
+
+### 3. Push Docker Image to Repository(you need to create an account with docker hub to do this)
+
+-	**docker push -t danvi/user-registration-service:1.1**
+-	This command pushes the Docker image tagged as danvi/user-registration-service:1.1 to the 
+	default container registry configured in your Docker environment. Make sure you are logged in 
+	to the container registry before running this command, as you need the appropriate 
+	permissions to push images.

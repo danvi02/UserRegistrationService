@@ -1,18 +1,5 @@
 version: "3.8"
 services: 
-  user-registration-service:
-    image: danvi/user-registration-service:1.1
-    restart: always
-    build: .
-    ports:
-      - 8080:9999
-    environment:
-      MYSQL_HOST: mysqldb
-      MYSQL_USER: dockeruser
-      MYSQL_PASSWORD: DanviShanmuki@2
-      MYSQL_DB: registration
-      MYSQL_PORT: 3306
-      SERVER_PORT: 9999
   mysqldb:
     image: mysql
     restart: always
