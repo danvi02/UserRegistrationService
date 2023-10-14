@@ -3,6 +3,7 @@ services:
   user-registration-service:
     image: danvi/user-registration-service:1.1
     restart: always
+    # you can use command `docker compose up --build` to build and run the image.
     build: .
     ports:
       - 8080:9999
@@ -11,6 +12,10 @@ services:
       MYSQL_USER: dockeruser
       MYSQL_PASSWORD: DanviShanmuki@2
       MYSQL_DB: registration
+      #You need to give 3306 here which refers to container port of mysqlkdb service,
+      #No need to give 3307 becuase `user-registration-service` service will communicate with `mysqldb`
+      #because we have given MYSQL_HOST:mysqldb above in the environment. But we need to use 3307 in 
+      #our application.properties/yml file to establish communication between springboot and mysql.
       MYSQL_PORT: 3306
       SERVER_PORT: 9999
   mysqldb:
