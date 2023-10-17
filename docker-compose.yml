@@ -13,13 +13,12 @@ services:
       MYSQL_PASSWORD: DanviShanmuki@2
       MYSQL_DB: registration
       #You need to give 3306 here which refers to container port of mysqlkdb service,
-      #No need to give 3307 becuase `user-registration-service` service will communicate with `mysqldb`
-      #because we have given MYSQL_HOST:mysqldb above in the environment. But we need to use 3307 in 
-      #our application.properties/yml file to establish communication between springboot and mysql.
+      #No need to give 3307 because `user-registration-service` service will communicate with `mysqldb`
+      #because we have given MYSQL_HOST:mysqldb above in the environment.
       MYSQL_PORT: 3306
       SERVER_PORT: 9999
   mysqldb:
-    image: mysql
+    image: mysql:latest
     restart: always
     environment:
       MYSQL_USER: dockeruser
